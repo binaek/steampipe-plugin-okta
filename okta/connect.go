@@ -20,7 +20,7 @@ func Connect(ctx context.Context, d *plugin.QueryData) (*okta.Client, error) {
 
 	oktaConfig := GetConfig(d.Connection)
 
-	var domain, token, clientID, privateKey string
+	var domain, token, clientID, privateKey, privateKeyID string
 
 	// The default value has been set as per the API doc: https://github.com/okta/okta-sdk-golang?tab=readme-ov-file#environment-variables
 	// SDK supported environment variables: https://github.com/okta/okta-sdk-golang/blob/master/okta/config.go#L33-L70
@@ -101,8 +101,14 @@ func Connect(ctx context.Context, d *plugin.QueryData) (*okta.Client, error) {
 		privateKey = os.Getenv("OKTA_CLIENT_PRIVATEKEY")
 	}
 
-	if domain != "" && clientID != "" && privateKey != "" {
-		_, client, err := okta.NewClient(ctx, okta.WithOrgUrl(domain), okta.WithAuthorizationMode("PrivateKey"), okta.WithClientId(clientID), okta.WithPrivateKey(privateKey), okta.WithScopes(scopes), okta.WithRequestTimeout(requestTimeout), okta.WithRateLimitMaxRetries(maxRetries), okta.WithRateLimitMaxBackOff(maxBackoff))
+	if oktaConfig.PrivateKeyID != nil {
+		privateKeyID = *oktaConfig.PrivateKeyID
+	} else {
+		privateKeyID = os.Getenv("OKTA_CLIENT_PRIVATEKEYID")
+	}
+
+	if domain != "" && clientID != "" && privateKey != "" && privateKeyID != "" {
+		_, client, err := okta.NewClient(ctx, okta.WithOrgUrl(domain), okta.WithAuthorizationMode("PrivateKey"), okta.WithClientId(clientID), okta.WithPrivateKey(privateKey), okta.WithPrivateKeyId(privateKeyID), okta.WithScopes(scopes), okta.WithRequestTimeout(requestTimeout), okta.WithRateLimitMaxRetries(maxRetries), okta.WithRateLimitMaxBackOff(maxBackoff))
 		if err != nil {
 			return nil, err
 		}
@@ -130,7 +136,6 @@ func Connect(ctx context.Context, d *plugin.QueryData) (*okta.Client, error) {
 	return client, err
 }
 
-
 func ConnectV4(ctx context.Context, d *plugin.QueryData) (*oktaV4.APIClient, error) {
 	// have we already created and cached the session?
 	sessionCacheKey := "OktaSessionV4"
@@ -140,7 +145,7 @@ func ConnectV4(ctx context.Context, d *plugin.QueryData) (*oktaV4.APIClient, err
 
 	oktaConfig := GetConfig(d.Connection)
 
-	var domain, token, clientID, privateKey string
+	var domain, token, clientID, privateKey, privateKeyID string
 	scopes := []string{"okta.users.read", "okta.groups.read", "okta.roles.read", "okta.apps.read", "okta.policies.read", "okta.authorizationServers.read", "okta.trustedOrigins.read", "okta.factors.read", "okta.devices.read"}
 
 	// The default value has been set as per the API doc: https://github.com/okta/okta-sdk-golang?tab=readme-ov-file#environment-variables
@@ -222,8 +227,14 @@ func ConnectV4(ctx context.Context, d *plugin.QueryData) (*oktaV4.APIClient, err
 		privateKey = os.Getenv("OKTA_CLIENT_PRIVATEKEY")
 	}
 
+	if oktaConfig.PrivateKeyID != nil {
+		privateKeyID = *oktaConfig.PrivateKeyID
+	} else {
+		privateKeyID = os.Getenv("OKTA_CLIENT_PRIVATEKEYID")
+	}
+
 	if domain != "" && clientID != "" && privateKey != "" {
-		oktaConfiguratiopn, err := oktaV4.NewConfiguration(oktaV4.WithOrgUrl(domain), oktaV4.WithAuthorizationMode("PrivateKey"), oktaV4.WithClientId(clientID), oktaV4.WithPrivateKey(privateKey), oktaV4.WithScopes(scopes), oktaV4.WithRequestTimeout(requestTimeout), oktaV4.WithRateLimitMaxRetries(maxRetries), oktaV4.WithRateLimitMaxBackOff(maxBackoff))
+		oktaConfiguratiopn, err := oktaV4.NewConfiguration(oktaV4.WithOrgUrl(domain), oktaV4.WithAuthorizationMode("PrivateKey"), oktaV4.WithClientId(clientID), oktaV4.WithPrivateKey(privateKey), oktaV4.WithPrivateKeyId(privateKeyID), oktaV4.WithScopes(scopes), oktaV4.WithRequestTimeout(requestTimeout), oktaV4.WithRateLimitMaxRetries(maxRetries), oktaV4.WithRateLimitMaxBackOff(maxBackoff))
 		if err != nil {
 			return nil, err
 		}
@@ -245,8 +256,8 @@ func ConnectV4(ctx context.Context, d *plugin.QueryData) (*oktaV4.APIClient, err
 	*	*/
 	oktaConfiguratiopn, err := oktaV4.NewConfiguration(oktaV4.WithRequestTimeout(requestTimeout), oktaV4.WithRateLimitMaxRetries(maxRetries), oktaV4.WithRateLimitMaxBackOff(maxBackoff))
 	if err != nil {
-			return nil, err
-		}
+		return nil, err
+	}
 	client := oktaV4.NewAPIClient(oktaConfiguratiopn)
 
 	// Save session into cache

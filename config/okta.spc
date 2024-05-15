@@ -15,6 +15,9 @@ connection "okta" {
 
   # Private key value. Can also be set with the OKTA_CLIENT_PRIVATEKEY environment variable.
   # private_key = "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAK..."
+  
+  # Private key ID value. Can also be set with the OKTA_CLIENT_PRIVATEKEYID environment variable.
+  # private_key_id = "my_private_key_id"
 
   # The maximum number of attempts (including the initial call) Steampipe will
   # make for failing API calls. Can also be set with the OKTA_CLIENT_RATE_LIMIT_MAX_RETRIES environment variable.

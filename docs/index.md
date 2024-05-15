@@ -55,7 +55,7 @@ steampipe plugin install okta
 ### Credentials
 
 | Item        | Description                                                                                                                                                                                                                                                                                 |
-|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Credentials | Okta requires a domain and an [API token](https://developer.okta.com/docs/guides/create-an-api-token/create-the-token/) or [a service app and private key](https://developer.okta.com/docs/guides/implement-oauth-for-okta-serviceapp/overview/) for all requests.                          |
 | Permissions | API tokens have the same permissions as the user who creates them, and if the user permissions change, the API token permissions also change. Service application permissions are based on granted [OAuth scopes](https://developer.okta.com/docs/guides/implement-oauth-for-okta/scopes/). |
 | Radius      | Each connection represents a single Okta Organization.                                                                                                                                                                                                                                      |
@@ -74,9 +74,10 @@ connection "okta" {
   # token  = "02d0YZgNSJwlNew6lZG-6qGThisisatest-token"
 
   # Or use an Okta application and the client credentials flow for authenticating: https://developer.okta.com/docs/guides/implement-oauth-for-okta-serviceapp/overview/
-  # domain      = "https://<your_okta_domain>.okta.com"
-  # client_id   = "0oa10zpa2bo6tAm9Test"
-  # private_key = "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAK..."
+  # domain         = "https://<your_okta_domain>.okta.com"
+  # client_id      = "0oa10zpa2bo6tAm9Test"
+  # private_key    = "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAK..."
+  # private_key_id = "my_private_key_id"
 
   # The maximum number of attempts (including the initial call) Steampipe will
   # make for failing API calls. Can also be set with the OKTA_CLIENT_RATE_LIMIT_MAX_RETRIES environment variable.
@@ -96,6 +97,7 @@ connection "okta" {
 By default, all options are commented out in the default connection, thus Steampipe will resolve your credentials using the same order as mentioned in [Credentials](#credentials). This provides a quick way to get started with Steampipe, but you will probably want to customize your experience using configuration options for querying multiple organizations, configuring credentials from your okta configuration files, [environment variables](#credentials-from-environment-variables), etc.
 
 If using the Okta service application, the following scopes must be enabled for Steampipe to be able to access the Okta APIs:
+
 - okta.users.read
 - okta.groups.read
 - okta.apps.read
@@ -135,4 +137,5 @@ export OKTA_CLIENT_RATE_LIMIT_MAX_BACKOFF=40
 export OKTA_CLIENT_ORGURL=https://<your_okta_domain>.okta.com
 export OKTA_CLIENT_CLIENTID=0oa10zpa2bo6tAm9Test
 export OKTA_CLIENT_PRIVATEKEY="-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAK..."
+export OKTA_CLIENT_PRIVATEKEYID="my_private_key_id"
 ```
